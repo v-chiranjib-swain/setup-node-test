@@ -26,6 +26,9 @@ jobs:
       node-version: '24.x'
       dist-path: fixtures/dist-rebuild/dist
       install-command: npm ci --ignore-scripts --prefix fixtures/dist-rebuild
-      build-command: npm run build --prefix fixtures/dist-rebuild
+      build-command: |
+        echo "Live concurrency test: delaying build for 180 seconds"
+        sleep 180
+        npm run build --prefix fixtures/dist-rebuild
     secrets:
       token: ${{ secrets.DEPENDABOT_BUILD_TOKEN }}
