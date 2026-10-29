@@ -1,0 +1,34 @@
+name: Live test - Closed PR publication guard
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - 'fixtures/dist-closed-pr/**'
+      - '.github/workflows/dist-closed-pr-live.yml'
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: dist-closed-pr-live-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  rebuild:
+    if: >-
+      github.actor == 'dependabot[bot]' &&
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    uses: v-chiranjib-swain/reusable-workflows/.github/workflows/dependabot-rebuild-dist.yml@368bd1faa6ed817126259e3341a8a8118069ab54
+    with:
+      node-version: '24.x'
+      dist-path: fixtures/dist-closed-pr/dist
+      install-command: npm ci --ignore-scripts --prefix fixtures/dist-closed-pr
+      build-command: |
+        echo "Live PR-close test: delaying build for 180 seconds"
+        sleep 180
+        npm run build --prefix fixtures/dist-closed-pr
+    secrets:
+      token: ${{ secrets.DEPENDABOT_BUILD_TOKEN }}
