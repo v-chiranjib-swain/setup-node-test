@@ -1,0 +1,34 @@
+name: Live test - Stale head rejection
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - 'fixtures/dist-stale-head/**'
+      - '.github/workflows/dist-stale-head-live.yml'
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: dist-stale-head-live-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  rebuild:
+    if: >-
+      github.actor == 'dependabot[bot]' &&
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    uses: v-chiranjib-swain/reusable-workflows/.github/workflows/dependabot-rebuild-dist.yml@368bd1faa6ed817126259e3341a8a8118069ab54
+    with:
+      node-version: '24.x'
+      dist-path: fixtures/dist-stale-head/dist
+      install-command: npm ci --ignore-scripts --prefix fixtures/dist-stale-head
+      build-command: |
+        echo "Live stale-head test: delaying build for 120 seconds"
+        sleep 120
+        npm run build --prefix fixtures/dist-stale-head
+    secrets:
+      token: ${{ secrets.DEPENDABOT_BUILD_TOKEN }}
