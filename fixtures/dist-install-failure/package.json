@@ -1,0 +1,11 @@
+{
+  "name": "dependabot-dist-install-failure-fixture",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node build.cjs"
+  },
+  "dependencies": {
+    "is-number": "6.0.0"
+  }
+}
