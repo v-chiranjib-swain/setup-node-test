@@ -28,4 +28,4 @@ jobs:
       install-command: npm ci --ignore-scripts --prefix fixtures/dist-readonly-pat
       build-command: npm run build --prefix fixtures/dist-readonly-pat
     secrets:
-      token: ${{ secrets.READONLY_DEPENDABOT_TEST_TOKEN }}
+      token: ${{ secrets.DEPENDABOT_BUILD_TOKEN }}
