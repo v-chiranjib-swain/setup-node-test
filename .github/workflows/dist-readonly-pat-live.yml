@@ -1,0 +1,31 @@
+name: Live test - Read-only publishing PAT
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - 'fixtures/dist-readonly-pat/**'
+      - '.github/workflows/dist-readonly-pat-live.yml'
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: dist-readonly-pat-live-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  rebuild:
+    if: >-
+      github.actor == 'dependabot[bot]' &&
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    uses: v-chiranjib-swain/reusable-workflows/.github/workflows/dependabot-rebuild-dist.yml@368bd1faa6ed817126259e3341a8a8118069ab54
+    with:
+      node-version: '24.x'
+      dist-path: fixtures/dist-readonly-pat/dist
+      install-command: npm ci --ignore-scripts --prefix fixtures/dist-readonly-pat
+      build-command: npm run build --prefix fixtures/dist-readonly-pat
+    secrets:
+      token: ${{ secrets.DEPENDABOT_BUILD_TOKEN }}
