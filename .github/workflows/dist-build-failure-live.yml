@@ -1,0 +1,31 @@
+name: Live test - Build command failure
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - 'fixtures/dist-build-failure/**'
+      - '.github/workflows/dist-build-failure-live.yml'
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: dist-build-failure-live-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  rebuild:
+    if: >-
+      github.actor == 'dependabot[bot]' &&
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    uses: v-chiranjib-swain/reusable-workflows/.github/workflows/dependabot-rebuild-dist.yml@368bd1faa6ed817126259e3341a8a8118069ab54
+    with:
+      node-version: '24.x'
+      dist-path: fixtures/dist-build-failure/dist
+      install-command: npm ci --ignore-scripts --prefix fixtures/dist-build-failure
+      build-command: npm run build --prefix fixtures/dist-build-failure
+    secrets:
+      token: ${{ secrets.DEPENDABOT_BUILD_TOKEN }}
