@@ -52,6 +52,12 @@ jobs:
           python3 -B -m unittest -v \
             test_dependabot_rebuild_dist.WorkflowTests.test_encrypted_and_unsupported_compression_are_rejected
 
+      - name: Reject NUL-truncated ZIP filenames
+        working-directory: publisher-tests/tests
+        run: |
+          python3 -B -m unittest -v \
+            test_dependabot_rebuild_dist.WorkflowTests.test_nul_truncated_zip_names_are_rejected
+
       - name: Record verified boundary
         run: |
           {
@@ -68,6 +74,8 @@ jobs:
             echo '- All three resource-limit rejections preserved the temporary local remote branch; this was not a large-artifact download or extraction test.'
             echo '- Mocked ZIP metadata with the encryption flag or LZMA compression was rejected with the expected diagnostic.'
             echo '- Both encryption/compression guard rejections preserved the temporary local remote branch; actual encrypted payloads were not used.'
+            echo '- Mocked ZIP metadata with a NUL-truncated filename was rejected with the unsafe-path diagnostic.'
+            echo '- The NUL-filename rejection preserved the temporary local remote branch; no crafted ZIP bytes were used.'
             echo '- The harness executed the actual pinned inline publisher script.'
             echo '- API responses were mocked; only dummy credentials and a local Git remote were used.'
             echo '- No repository publishing secret was mapped, and job permissions were read-only.'
