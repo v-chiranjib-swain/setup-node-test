@@ -1,0 +1,41 @@
+name: Publisher artifact validation
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - '.github/workflows/publisher-artifact-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  malformed-and-corrupt-archives:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout pinned publisher and regression harness
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: v-chiranjib-swain/reusable-workflows
+          ref: 368bd1faa6ed817126259e3341a8a8118069ab54
+          path: publisher-tests
+          persist-credentials: false
+
+      - name: Reject malformed ZIP and CRC-corrupted payload
+        working-directory: publisher-tests/tests
+        run: |
+          python3 -B -m unittest -v \
+            test_dependabot_rebuild_dist.WorkflowTests.test_malformed_and_corrupt_archives
+
+      - name: Record verified boundary
+        run: |
+          {
+            echo '### Publisher artifact validation passed'
+            echo '- A non-ZIP artifact was rejected with the expected diagnostic.'
+            echo '- A ZIP with a corrupted payload was rejected by CRC validation.'
+            echo '- Both rejections preserved the temporary local remote branch.'
+            echo '- The harness executed the actual pinned inline publisher script.'
+            echo '- API responses were mocked; only dummy credentials and a local Git remote were used.'
+            echo '- No repository publishing secret was mapped, and job permissions were read-only.'
+          } >> "$GITHUB_STEP_SUMMARY"
