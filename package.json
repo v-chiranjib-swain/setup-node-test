@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "packageManager": "npm@10.9.2",
   "scripts": {
-    "test": "echo \"Running tests...\" && exit 0"
+    "test": "echo \"Running tests...\" && exit 0",
+    "build": "node fixtures/dist-root-defaults/build.cjs"
+  },
+  "dependencies": {
+    "is-number": "6.0.0"
   },
   "engines": {
     "node": ">=24 <25"
