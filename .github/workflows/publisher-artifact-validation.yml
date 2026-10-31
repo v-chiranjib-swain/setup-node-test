@@ -34,6 +34,12 @@ jobs:
           python3 -B -m unittest -v \
             test_dependabot_rebuild_dist.WorkflowTests.test_unsafe_archive_entries
 
+      - name: Reject duplicate entries and file-directory conflicts
+        working-directory: publisher-tests/tests
+        run: |
+          python3 -B -m unittest -v \
+            test_dependabot_rebuild_dist.WorkflowTests.test_duplicates_and_file_directory_conflicts
+
       - name: Record verified boundary
         run: |
           {
@@ -43,6 +49,8 @@ jobs:
             echo '- Both rejections preserved the temporary local remote branch.'
             echo '- Ten unsafe-entry cases were rejected: traversal, absolute paths, backslashes, control characters, .git paths, out-of-root entries, symlinks, FIFOs, and mismatched directory types.'
             echo '- Every unsafe-entry rejection preserved the local remote branch and existing generated bundle.'
+            echo '- Three archive conflicts were rejected: duplicate files, a file used as a parent directory, and a shared file/directory path.'
+            echo '- Every archive-conflict rejection preserved the temporary local remote branch.'
             echo '- The harness executed the actual pinned inline publisher script.'
             echo '- API responses were mocked; only dummy credentials and a local Git remote were used.'
             echo '- No repository publishing secret was mapped, and job permissions were read-only.'
