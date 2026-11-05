@@ -1,0 +1,42 @@
+name: GitHub publisher push races
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  races:
+    if: github.repository == 'v-chiranjib-swain/setup-node-test' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout trusted harness
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Checkout pinned publisher and regression helpers
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: v-chiranjib-swain/reusable-workflows
+          ref: 3860e6b77ef2688557c82c3e96dda8ad8a6c23e9
+          path: publisher-source
+          persist-credentials: false
+
+      - name: Test real GitHub scratch-branch races
+        env:
+          RACE_TOKEN: ${{ secrets.DEPENDABOT_BUILD_TOKEN }}
+        run: python3 -I fixtures/github-push-races/run.py publisher-source
+
+      - name: Record scope
+        run: |
+          {
+            echo '### GitHub push race tests passed'
+            echo '- Ancestor reset, forward update, and competing publisher interleavings tested.'
+            echo '- Actual pinned publisher executed with real GitHub pushes to unique scratch branches.'
+            echo '- PR eligibility API responses mocked; no real Dependabot PR was used.'
+            echo '- Mutations injected after the final API check and before push.'
+            echo '- Scratch branches deleted; main and existing PR branches untouched by the harness.'
+          } >> "$GITHUB_STEP_SUMMARY"
