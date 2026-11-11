@@ -21,7 +21,7 @@ jobs:
       github.actor == 'dependabot[bot]' &&
       github.event.pull_request.user.login == 'dependabot[bot]' &&
       github.event.pull_request.head.repo.full_name == github.repository
-    uses: v-chiranjib-swain/reusable-workflows/.github/workflows/dependabot-rebuild-dist.yml@3860e6b77ef2688557c82c3e96dda8ad8a6c23e9
+    uses: actions/reusable-workflows/.github/workflows/dependabot-rebuild-dist.yml@4e635c35f2acd242b529fbb3f980d7cb6c779384
     with:
       dist-path: fixtures/dist-helper-refactor/dist
       install-command: npm ci --ignore-scripts --prefix fixtures/dist-helper-refactor
